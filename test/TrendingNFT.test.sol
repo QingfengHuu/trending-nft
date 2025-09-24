@@ -43,17 +43,6 @@ contract TrendingNFTTest is Test {
         vm.stopPrank();
     }
 
-    function testOwnerMintWithoutEth() public {
-        vm.startPrank(owner);
-
-        // Owner can mint without sending ETH
-        uint256 amount = 5;
-        trendingNFT.ownerMint(user, amount);
-
-        assertEq(trendingNFT.totalMinted(1), amount);
-        vm.stopPrank();
-    }
-
     function testCurrentDailyId() public {
         vm.startPrank(owner);
         assertEq(trendingNFT.currentDailyId(), 1);
@@ -123,15 +112,6 @@ contract TrendingNFTTest is Test {
         vm.stopPrank();
     }
 
-    function testOwnerMintNotOwner() public {
-        vm.startPrank(user);
-        vm.expectRevert(
-            abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", user)
-        );
-        trendingNFT.ownerMint(user, 1);
-        vm.stopPrank();
-    }
-
     function testWithdrawNotOwner() public {
         vm.startPrank(user);
         vm.expectRevert(
@@ -171,16 +151,6 @@ contract TrendingNFTTest is Test {
         vm.stopPrank();
     }
 
-    function testOwnerMintEvents() public {
-        vm.startPrank(owner);
-
-        vm.expectEmit(true, true, false, true);
-        emit TrendingNFT.TrendingMinted(user, 1, 1);
-
-        trendingNFT.ownerMint(user, 1);
-        vm.stopPrank();
-    }
-
     function testCreateTrendingEvents() public {
         // Move time forward by 1 day to allow creating new trending
         vm.warp(block.timestamp + DAILY_DURATION);
@@ -209,18 +179,6 @@ contract TrendingNFTTest is Test {
 
         vm.expectRevert("TrendingNFT: Daily mint expired");
         trendingNFT.mint{value: MINT_PRICE}(1);
-
-        vm.stopPrank();
-    }
-
-    function testOwnerMintAfterExpiration() public {
-        // Move time forward past the daily duration
-        vm.warp(block.timestamp + DAILY_DURATION);
-
-        vm.startPrank(owner);
-
-        vm.expectRevert("TrendingNFT: Daily mint expired");
-        trendingNFT.ownerMint(user, 1);
 
         vm.stopPrank();
     }
@@ -295,16 +253,6 @@ contract TrendingNFTTest is Test {
 
         uint256 amount = 2;
         trendingNFT.mint{value: MINT_PRICE * amount}(amount);
-
-        assertEq(trendingNFT.balanceOf(user, 1), amount);
-        vm.stopPrank();
-    }
-
-    function testOwnerMintTransfersTokensToRecipient() public {
-        vm.startPrank(owner);
-
-        uint256 amount = 2;
-        trendingNFT.ownerMint(user, amount);
 
         assertEq(trendingNFT.balanceOf(user, 1), amount);
         vm.stopPrank();

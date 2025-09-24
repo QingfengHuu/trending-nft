@@ -95,26 +95,6 @@ contract TrendingNFT is ERC1155, Ownable {
     }
 
     /**
-     * @notice Owner can mint `amount` editions of the current daily tokenId to `to` for free (useful for initial distribution).
-     * @dev Handles edge case of zero-amount mints by requiring amount > 0.
-     * @param to The address to receive the minted tokens.
-     * @param amount The number of editions to mint.
-     */
-    function ownerMint(address to, uint256 amount) external onlyOwner {
-        require(currentDailyId != 0, "TrendingNFT: No daily NFT available");
-        require(
-            block.timestamp < dailyStart + DAILY_DURATION,
-            "TrendingNFT: Daily mint expired"
-        );
-        require(amount > 0, "TrendingNFT: Amount must be greater than zero");
-
-        totalMinted[currentDailyId] += amount;
-        _mint(to, currentDailyId, amount, "");
-
-        emit TrendingMinted(to, currentDailyId, amount);
-    }
-
-    /**
      * @notice Public mint function: users can mint editions by paying exactly 0.001 ETH per token.
      * @dev Requires exact payment to avoid overpayment issues; handles zero-amount by require.
      * @param amount Number of editions to mint.
